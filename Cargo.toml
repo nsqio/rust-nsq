@@ -1,0 +1,4 @@
+[package]
+name = "rust-nsq"
+version = "0.0.1"
+authors = ["Matt Reiferson <snakes@gmail.com>"]
