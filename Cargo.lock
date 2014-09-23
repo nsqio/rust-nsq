@@ -1,4 +1,4 @@
 [root]
-name = "rust-nsq"
+name = "nsq"
 version = "0.0.1"
 
