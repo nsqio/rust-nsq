@@ -18,8 +18,15 @@ impl Connection {
         Ok(ret)
     }
 
-    fn send(&mut self, data: &[u8]) -> IoResult<()> {
+    pub fn send(&mut self, data: &[u8]) -> IoResult<()> {
         let w = &mut self.sock as &mut Writer;
         w.write(data.as_slice())
+    }
+
+    pub fn recv(&mut self) -> IoResult<Vec<u8>> {
+        let r = &mut self.sock as &mut Reader;
+        let size = try!(r.read_be_u32());
+        let data = try!(r.read_exact(size as uint));
+        Ok(data)
     }
 }
