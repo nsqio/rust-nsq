@@ -6,6 +6,9 @@ fn main() {
         Ok(conn) => conn,
     };
     let _ = conn.send(b"SUB test test\n");
-    let data = conn.recv();
+    let data = match conn.read_frame() {
+        Err(why) => fail!("{}", why),
+        Ok(data) => data,
+    };
     println!("{}", data);
 }
