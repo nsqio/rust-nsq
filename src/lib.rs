@@ -3,7 +3,6 @@
 use std::io::{MemReader, Reader, Writer, IoResult, IoError};
 use std::io::net::tcp::TcpStream;
 use std::string::String;
-use std::fmt;
 
 macro_rules! try_io {
     ($expr:expr) => (
@@ -26,19 +25,11 @@ pub enum ErrorKind {
     InternalIoError(IoError),
 }
 
+#[deriving(Show)]
 pub struct Error {
     pub kind: ErrorKind,
     pub desc: &'static str,
     pub detail: Option<String>,
-}
-
-impl fmt::Show for Error {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        match self.detail {
-            None => write!(fmt, "NA"),
-            Some(ref s) => write!(fmt, "{:s}", s.as_slice()),
-        }
-    }
 }
 
 pub type NSQResult<T> = Result<T, Error>;
@@ -61,7 +52,7 @@ impl Connection {
             sock: sock,
         };
 
-        try!(ret.send(b"  V1"));
+        try!(ret.send(b"  V2"));
 
         Ok(ret)
     }
@@ -79,11 +70,10 @@ impl Connection {
         let frame_type = try_io!(frame.read_be_u32());
         let body = try_io!(frame.read_to_end());
         if frame_type == 0x01 {
-            let detail = body.as_slice().to_string();
             return Err(Error {
                 kind: ResponseError,
                 desc: "failed to read frame",
-                detail: Some(detail),
+                detail: Some(String::from_utf8(body).unwrap()),
             });
         }
         let ret = Frame {
